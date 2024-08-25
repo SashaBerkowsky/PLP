@@ -37,12 +37,7 @@ aEntero (Right x) | True = 1
 limpiar :: String -> String -> String
 limpiar _ [] = []
 limpiar [] y = y
-limpiar (x: xs) (y: ys) = limpiar xs (quitarLetra x (y:ys))
-
-quitarLetra :: Char -> String -> String
-quitarLetra c [] = ""
-quitarLetra c (x:xs) | c == x = quitarLetra c xs
-                     | otherwise = x : quitarLetra c xs
+limpiar (x:xs) y = limpiar xs (filter (/= x)  y)
 
 -- 4.2
 difPromedio :: [Float] -> [Float]
