@@ -10,17 +10,17 @@ type Procesador a b = a -> [b]
 
 -- Árboles ternarios
 data AT a = Nil | Tern a (AT a) (AT a) (AT a) deriving Eq
---E.g., at = Tern 1 (Tern 2 Nil Nil Nil) (Tern 3 Nil Nil Nil) (Tern 4 Nil Nil Nil)
+at = Tern 1 (Tern 2 Nil Nil Nil) (Tern 3 Nil Nil Nil) (Tern 4 Nil Nil Nil)
 --Es es árbol ternario con 1 en la raíz, y con sus tres hijos 2, 3 y 4.
 
 -- RoseTrees
 data RoseTree a = Rose a [RoseTree a] deriving Eq
---E.g., rt = Rose 1 [Rose 2 [], Rose 3 [], Rose 4 [], Rose 5 []] 
+rt = Rose 1 [Rose 2 [], Rose 3 [], Rose 4 [], Rose 5 []] 
 --es el RoseTree con 1 en la raíz y 4 hijos (2, 3, 4 y 5)
 
 -- Tries
 data Trie a = TrieNodo (Maybe a) [(Char, Trie a)] deriving Eq
--- E.g., t = TrieNodo (Just True) [('a', TrieNodo (Just True) []), ('b', TrieNodo Nothing [('a', TrieNodo (Just True) [('d', TrieNodo Nothing [])])]), ('c', TrieNodo (Just True) [])]
+t = TrieNodo (Just True) [('a', TrieNodo (Just True) []), ('b', TrieNodo Nothing [('a', TrieNodo (Just True) [('d', TrieNodo Nothing [])])]), ('c', TrieNodo (Just True) [])]
 -- es el Trie Bool de que tiene True en la raíz, tres hijos (a, b, y c), y, a su vez, b tiene como hijo a d.
 
 
@@ -105,56 +105,79 @@ unoxuno :: Procesador [a] [a]
 unoxuno = map (: [])
 
 sufijos :: Procesador [a] [a]
-sufijos [] = [[]] 
+sufijos [] = [[]]
 sufijos xs = xs : sufijos (tail xs)
 
 
 --Ejercicio 4
---preorder :: undefined
-preorder = undefined
+preorder :: Procesador (AT a) a
+preorder Nil = []
+preorder (Tern a l c r) = a:preorder l ++ preorder c ++ preorder r
 
 --inorder :: undefined
 inorder = undefined
 
---postorder :: undefined
-postorder = undefined
+postorder :: Procesador (AT a) a
+postorder Nil = []
+postorder (Tern value left middle right) = postorder left ++ postorder middle ++ postorder right ++ [value]
 
 --Ejercicio 5
 
+-- PARA FUTURA ACLARACION
+-- concatMap combina concat y map, recibe dos parametros:
+-- 1 - una funcion lambda la cual recibe un parametro y retorna un array en base al parametro
+-- 2 - un array
+-- concatmap mapea el array (2) y le aplica a cada elemento la función lambda (1) y luego concatena todos los resultados
+-- el retorno de concatmap es un array compuesto de aplicar f(2) a cada elemento de (1) y luego unir los resultados
+
 preorderRose :: Procesador (RoseTree a) a
-preorderRose = undefined
+preorderRose (Rose v children) = foldl (\acc child -> acc ++ preorderRose child ) [v] children
 
 hojasRose :: Procesador (RoseTree a) a
-hojasRose = undefined
+hojasRose (Rose v []) = [v]
+hojasRose (Rose _ children) = foldl (\acc child -> acc ++ hojasRose child) [] children
 
 ramasRose :: Procesador (RoseTree a) [a]
-ramasRose = undefined
+ramasRose (Rose v []) = [[v]]
+ramasRose (Rose v children) = map (v: ) (concatMap ramasRose children)
 
 
 --Ejercicio 6
 
 --caminos :: undefined
-caminos = undefined
+caminos :: Trie a -> [String]
+caminos trie = caminosAux trie ""
+
+caminosAux :: Trie a -> String -> [String]
+caminosAux (TrieNodo _ []) acc = [acc]  
+caminosAux (TrieNodo _ children) acc = acc : concatMap (\(char, accTrie) -> caminosAux accTrie (acc ++ [char])) children
 
 
 --Ejercicio 7
 
 --palabras :: undefined
-palabras = undefined
+palabras :: Trie a -> [String]
+palabras trie = palabrasAux trie ""
+
+palabrasAux :: Trie a -> String -> [String]
+palabrasAux (TrieNodo _ []) acc = [acc]  
+palabrasAux (TrieNodo _ children) acc =
+    concatMap (\(char, accTrie) -> palabrasAux accTrie (acc ++ [char])) children
 
 
 --Ejercicio 8
 -- 8.a)
 ifProc :: (a->Bool) -> Procesador a b -> Procesador a b -> Procesador a b
-ifProc = undefined
+ifProc f g h s | f s        = g s
+               | otherwise  = h s
 
 -- 8.b)
 (++!) :: Procesador a b -> Procesador a b -> Procesador a b
-(++!) = undefined
+(++!) f g s = f s ++ g s
 
 -- 8.c)
 (.!) :: Procesador b c -> Procesador a b -> Procesador a c
-(.!) = undefined
+(.!) f g s = concatMap f (g s)
 
 --Ejercicio 9
 -- Se recomienda poner la demostración en un documento aparte, por claridad y prolijidad, y, preferentemente, en algún formato de Markup o Latex, de forma de que su lectura no sea complicada.
