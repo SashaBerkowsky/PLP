@@ -1,0 +1,83 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+
+\begin{document}
+\section{Demostración}
+Queremos ver que:
+$$\forall t::AT\ a.\ \forall x::a.\ (elem\ x\ (preorder\ t)\ =\ elem\ x\ (postorder\ t))$$
+Definiendo: 
+\begin{itemize}
+  \item $AT\ a = Nil\ |\ Tern\ a\ (AT\ a)\ (AT\ a)\ (AT\ a)$
+  \item $preorder\ ::\ Procesador\ (AT\ a)\ a\ \\\lbrace PRE\rbrace\ preorder = foldAT\ [\ ]\ (v\ i\ c\ d\ \rightarrow\ [v]\ ++\ i\ ++\ c\ ++\ d)$
+  \item $postorder\ ::\ Procesador\ (AT\ a)\ a\ \\\lbrace POST\rbrace\ postorder = foldAT\ [\ ]\ (v\ i\ c\ d\ \rightarrow\ i\ ++\ c\ ++\ [v]\ ++\ d)$
+  \item $foldAT\ ::\ b\ \rightarrow\ (a\ \rightarrow\ b\ \rightarrow\ b\ \rightarrow\ b\ \rightarrow\ b)\ \rightarrow\ AT\ a\ \rightarrow\ b \\
+  foldAT\ cNil\ cTern\ at = case\ at\ of \\
+  \rule{1cm}{0pt}Nil\ \rightarrow\ cNil \\
+  \rule{1cm}{0pt}Tern\ v\ c\ i\ d\ \rightarrow\ cTern\ val\ (rec\ izq)\ (rec\ cen)\ (rec\ der) \\
+  \rule{1cm}{0pt}where\ rec=\ foldAT cNil cTern\\$
+\end{itemize}
+Por inducción estructural en $t$ definimos el enunciado $P(t)$ y planteamos tanto el caso base como el caso inductivo:\\\\
+$\forall i,\ c,\ d::AT\ a.\ \forall v::a\\\\$
+$P(t)=elem\ x\ (preorder\ t)=elem\ x\ (postorder\ t)$
+\begin{itemize}
+    \item Caso base: $P(Nil)$
+    \item Caso inductivo: $(P(i)\ \land\ P(c)\ \land\ P(d))\Rightarrow P(AT\ v\ i\ c\ d)$
+\end{itemize}
+\subsection{Caso Base}
+$P(Nil)\equiv elem\ x\ (preorder\ Nil)=elem\ x\ (postorder\ Nil)\\\\$
+Reemplazando en preorder/postorder y luego en foldAT:\\
+$preorder\ Nil = [\ ]\\$
+$postorder\ Nil = [\ ]\\\\$
+$P(Nil)\equiv elem\ x\ [\ ]=elem\ x\ [\ ]\\$
+$elem\ x\ [\ ]=False \Rightarrow P(Nil) \equiv False = False\\\\$
+$P(Nil)=True$
+\subsection{Caso Inductivo}
+$(P(i)\ \land\ P(c)\ \land\ P(d))\Rightarrow P(AT\ v\ i\ c\ d)$\\\\
+Para demostrar esta implicación asumimos la implicación\\\\
+Con este criterio vemos que $P(i)\ \land\ P(c)\ \land P(d)$ es verdadero, con lo cual:
+\begin{itemize}
+    \item $P(i)\equiv elem\ x\ (preorder\ i) =elem\ x\ (postorder\ i) \equiv True$
+    \item $P(c)\equiv elem\ x\ (preorder\ c) =elem\ x\ (postorder\ c) \equiv True$
+    \item $P(d)\equiv elem\ x\ (preorder\ d) =elem\ x\ (postorder\ d) \equiv True$
+\end{itemize}\\
+Pasamos a detallar el consecuente:\\\\
+$P(AT\ v\ i\ c\ d)\equiv elem\ x\ (preorder\ (AT\ v\ i\ c\ d))=elem\ x\ (preorder\ (AT\ v\ i\ c\ d))\\\\$
+Reemplazando en preorder/postorder y luego en foldAT:\\
+$preorder\ (AT\ v\ i\ c\ d)=[v]\ ++\ preorder\ i\ ++\ preorder\ c\ ++\ preorder\ d\\$
+$postorder\ (AT\ v\ i\ c\ d)=postorder\ i\ ++\ postorder\ c\ ++\ [v]\ ++\ postorder\ d\\\\$
+Por lo tanto:\\
+$P(AT\ v\ i\ c\ d)\equiv\\ elem\ x\ ([v]\ ++\ preorder\ i\ ++\ preorder\ c\ ++\ preorder\ d)\\=elem\ x\ (postorder\ i\ ++\ postorder\ c\ ++\ [v]\ ++\ postorder\ d)\\\\$
+Ahora desarrollamos cada lado de $P(AT\ v\ i\ c\ d)$:
+\subsubsection{Lado Izquierdo}
+$elem\ x\ ([v]\ ++\ preorder\ i\ ++\ preorder\ c\ ++\ preorder\ d)=\\$
+$x=v\ \lor\ elem\ x\ (preorder\ i)\ \lor\ elem\ x\ (preorder\ c)\ \lor\ elem\ x\ (preorder\ d)$
+\subsubsection{Lado Derecho}
+$elem\ x\ (postorder\ i\ ++\ postorder\ c\ ++\ [v] ++\ postorder\ d)=$
+\[x=v\ \lor\ elem\ x\ (postorder\ i)\ \lor\ elem\ x\ (postorder\ c)\ \lor\ elem\ x\ (postorder\ d)\]
+\\ Así podemos separar estos 2 casos:
+\begin{enumerate}
+  \item $x = v$
+  \item $x\neq v$
+\end{enumerate}
+\subsubsection{$x = v$}
+$x=v\ \lor\ elem\ x\ (preorder\ i)\ \lor\ elem\ x\ (preorder\ c)\ \lor\ elem\ x\ (preorder\ d)\equiv elem\ x\ (preorder\ AT\ v\ i\ c\ d)\equiv True$\\\\
+$x=v\ \lor\ elem\ x\ (postorder\ i)\ \lor\ elem\ x\ (postorder\ c)\ \lor\ elem\ x\ (postorder\ d)\equiv elem\ x\ (postorder\ AT\ v\ i\ c\ d)\equiv True$\\\\
+$\Rightarrow elem\ x\ (preorder AT\ v\ i\ c\ d)=elem\ x\ (postorder\ AT\ v\ i\ c\ d)\equiv True$\\
+$\Rightarrow P(AT\ v\ i\ c\ d)\equiv True$
+\subsubsection{$x \neq v$}
+Como $x\neq v$ podemos detallar ambos lados de $P(AT\ v\ i\ c\ d)$ de la siguiente manera:$\\\\$
+Lado izquierdo: $elem\ x\ (preorder\ i)\ \lor\ elem\ x\ (preorder\ c)\ \lor\ elem\ x\ (preorder\ d)\\$
+Lado derecho: $elem\ x\ (postorder\ i)\ \lor\ elem\ x\ (postorder\ c)\ \lor\ elem\ x\ (postorder\ d)\\\\$
+Ahora bien, por hipótesis inductiva sabememos que
+\begin{itemize}
+    \item $P(i)\equiv elem\ x\ (preorder\ i) =elem\ x\ (postorder\ i) \equiv True$
+    \item $P(c)\equiv elem\ x\ (preorder\ c) =elem\ x\ (postorder\ c) \equiv True$
+    \item $P(d)\equiv elem\ x\ (preorder\ d) =elem\ x\ (postorder\ d) \equiv True$
+\end{itemize}
+Con lo cual
+$\\\\elem\ x\ (preorder\ i)\ \lor\ elem\ x\ (preorder\ c)\ \lor\ elem\ x\ (preorder\ d)=\\$
+$elem\ x\ (postorder\ i)\ \lor\ elem\ x\ (postorder\ c)\ \lor\ elem\ x\ (postorder\ d)\\
+\equiv P(AT\ v\ i\ c\ d)\equiv True\\\\$
+De esta forma demostramos por inducción estructural que
+$$\forall t::AT\ a.\ \forall x::a.\ (elem\ x\ (preorder\ t)\ =\ elem\ x\ (postorder\ t))$$
+\end{document}
